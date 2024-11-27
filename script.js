@@ -24,7 +24,10 @@ function sonEtAnimation(event) {
         };
 
         if(event.keyCode === 80){
-            startPlay(event);
+            startPlay(event)
+            setTimeout(()=> {
+                key.classList.toggle('playing');
+            }, Date.now() - startRecord);
         }
 
         return;
@@ -73,30 +76,80 @@ function record(event) {
                 
 };
 
-function startPlay() {
-    const playButton = document.querySelector('.play-button');
-    if (playButton) playButton.classList.add('playing'); // Enfoncer le bouton play
-
-    let lastTime = 0; // Variable pour suivre la dernière durée
-
-    soundsRecording.forEach((sound) => {
-        setTimeout(() => {
-            const key = document.querySelector(`.key[data-key="${sound.keyCode}"]`);
-            const keyAudio = document.querySelector(`audio[data-key="${sound.keyCode}"]`);
-
-            if (key && keyAudio) {
-                keyAudio.currentTime = 0;
-                keyAudio.play();
-                key.classList.add('playing');
-                setTimeout(() => key.classList.remove('playing'), 300); // Retirer l'animation
-            }
-        }, sound.timeCode);
-
-        // Mettre à jour lastTime pour la durée totale
-        lastTime = Math.max(lastTime, sound.timeCode + 300);
+function startPlay(){
+    soundsRecording.forEach((index)=> {
+        setTimeout(()=>{
+           const eventkeySimulation = new KeyboardEvent("keydown", {keyCode: index.keyCode});
+           document.dispatchEvent(eventkeySimulation);
+           setTimeout(()=> {
+            const eventkeySimulation = new KeyboardEvent("keyup" , {keyCode: index.keyCode});
+            document.dispatchEvent(eventkeySimulation);
+           }, 200);
+        }, index.timeCode);
     });
+};
 
-    setTimeout(() => {
-        if (playButton) playButton.classList.remove('playing'); // Relâcher le bouton play après la lecture
-    }, lastTime);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// function startPlay() {
+//     const playButton = document.querySelector('.play-button');
+//     if (playButton) playButton.classList.add('playing'); // Enfoncer le bouton play
+
+//     let lastTime = 0; // Variable pour suivre la dernière durée
+
+//     soundsRecording.forEach((sound) => {
+//         setTimeout(() => {
+//             const key = document.querySelector(`.key[data-key="${sound.keyCode}"]`);
+//             const keyAudio = document.querySelector(`audio[data-key="${sound.keyCode}"]`);
+
+//             if (key && keyAudio) {
+//                 keyAudio.currentTime = 0;
+//                 keyAudio.play();
+//                 key.classList.add('playing');
+//                 setTimeout(() => key.classList.remove('playing'), 300); // Retirer l'animation
+//             }
+//         }, sound.timeCode);
+
+//         // Mettre à jour lastTime pour la durée totale
+//         lastTime = Math.max(lastTime, sound.timeCode + 300);
+//     });
+
+//     setTimeout(() => {
+//         if (playButton) playButton.classList.remove('playing'); // Relâcher le bouton play après la lecture
+//     }, lastTime);
+// }
