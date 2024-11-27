@@ -1,9 +1,10 @@
-document.addEventListener('keydown', sonEtAnimation);
-document.addEventListener('keyup', removeAudioAndAnimation);
 
-let recording = false;
-let sounds = [];
-let tempo = [];
+document.addEventListener('keydown', sonEtAnimation);
+document.addEventListener('keyup', stopAudioAndAnimation);
+
+let isRecording = false;
+let soundsRecording = [];
+let startRecord;
 
 function sonEtAnimation(event) {
     if (event.repeat) return;
@@ -14,52 +15,88 @@ function sonEtAnimation(event) {
 
     key.classList.toggle('playing');
 
-    const audio = document.querySelector('audio[data-key="' + event.keyCode + '"]');
+    const keyAudio = document.querySelector('audio[data-key="' + event.keyCode + '"]');
 
-    if (!audio) {
+    if (!keyAudio) {
 
         if (event.keyCode === 82) {
             TriggerRecord(event);
         };
 
-        
+        if(event.keyCode === 80){
+            startPlay(event);
+        }
+
         return;
     };
 
-    if (audio) {
+    if (keyAudio) {
 
-        audio.currentTime = 0;
-        audio.play();
+        keyAudio.currentTime = 0;
+        keyAudio.play();
 
-        if (recording === true) {
+        if (isRecording === true) {
             record(event);
         };
     };
 };
 
-function removeAudioAndAnimation(event) {
+function stopAudioAndAnimation(event) {
     let keySelect = document.querySelector(`.key[data-key="${event.keyCode}"]`);
 
     if (!keySelect) return;
 
-    let audio = document.querySelector('audio[data-key="' + event.keyCode + '"]');
+    let keyAudio = document.querySelector('audio[data-key="' + event.keyCode + '"]');
 
-    if (keySelect && audio) {
+    if (keySelect && keyAudio) {
         keySelect.classList.toggle('playing');
     }
 };
 
 function TriggerRecord(event) {
-    if (event.keyCode === 82 && recording === false) {
-        recording = true;
+    if (event.keyCode === 82 && isRecording === false) {
+        isRecording = true;
+        soundsRecording = [];
+        startRecord = Date.now();
     }
     else {
-        recording = false;
+        isRecording = false;
     };
 };
 
 function record(event) {
-            sounds.push(event.keyCode);
-            console.log(sounds);
-            
+            soundsRecording.push({
+                keyCode: event.keyCode,
+               timeCode: Date.now() - startRecord 
+            })    
+            console.log(soundsRecording);
+                
 };
+
+function startPlay() {
+    const playButton = document.querySelector('.play-button');
+    if (playButton) playButton.classList.add('playing'); // Enfoncer le bouton play
+
+    let lastTime = 0; // Variable pour suivre la dernière durée
+
+    soundsRecording.forEach((sound) => {
+        setTimeout(() => {
+            const key = document.querySelector(`.key[data-key="${sound.keyCode}"]`);
+            const keyAudio = document.querySelector(`audio[data-key="${sound.keyCode}"]`);
+
+            if (key && keyAudio) {
+                keyAudio.currentTime = 0;
+                keyAudio.play();
+                key.classList.add('playing');
+                setTimeout(() => key.classList.remove('playing'), 300); // Retirer l'animation
+            }
+        }, sound.timeCode);
+
+        // Mettre à jour lastTime pour la durée totale
+        lastTime = Math.max(lastTime, sound.timeCode + 300);
+    });
+
+    setTimeout(() => {
+        if (playButton) playButton.classList.remove('playing'); // Relâcher le bouton play après la lecture
+    }, lastTime);
+}
