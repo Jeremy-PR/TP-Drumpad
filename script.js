@@ -84,7 +84,7 @@ function startPlay(){
            setTimeout(()=> {
             const eventkeySimulation = new KeyboardEvent("keyup" , {keyCode: index.keyCode});
             document.dispatchEvent(eventkeySimulation);
-           }, 200);
+           }, 300);
         }, index.timeCode);
     });
 };
